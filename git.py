@@ -1,4 +1,5 @@
 from github import Github
+from datetime import datetime
 
 token = 'your_personal_token'
 
@@ -6,16 +7,24 @@ repo_path = 'user/repo'
 
 file_path = 'file_path'
 
-file_label = 'filename_in_release'
+file_name = file_path.split('/')[-1]
 
 g = Github(token)
 
 repo = g.get_repo(repo_path)
 
-release = repo.create_git_release(tag='v1.0', name='Release v1.0', message='Release v1.0')
+release_tag = datetime.now().strftime("%H-%M-%S")
 
-asset = release.upload_asset(file_path, label=file_label)
+release_name = f'Release {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}'
 
-download_url = asset.browser_download_url
+try:
+    release = repo.create_git_release(tag=release_tag, name=release_name, message='', draft=False, prerelease=False)
+    
+    asset = release.upload_asset(file_path, label=file_name)
+    
+    download_url = asset.browser_download_url
+    
+    print(f'Direct-Download-Link: {download_url}')
+except Exception as e:
+    print(f"Error creating release: {e}")
 
-print(f'Direct-Download-Link: {download_url}')
